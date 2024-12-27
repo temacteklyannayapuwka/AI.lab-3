@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import numpy as np
+
+# Матрица символов
+matrix = np.array([
+    ['A', 'B', 'C', 'D'],
+    ['E', 'F', 'G', 'H'],
+    ['I', 'J', 'K', 'L'],
+    ['M', 'N', 'O', 'P']
+])
+
+# Направления для перемещения по матрице (вверх, вниз, влево, вправо, по диагонали)
+directions = [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]
+
+# Функция для генерации всех возможных слов из матрицы
+def generate_words(matrix, word, x, y, visited, words):
+    if (x < 0 or x >= matrix.shape[0]) or (y < 0 or y >= matrix.shape[1]) or visited[x, y]:
+        return
+    
+    # Добавляем букву в слово
+    word += matrix[x, y]
+    visited[x, y] = True  # Отметить клетку как посещенную
+    
+    # Добавляем слово в список, если оно достаточно длинное
+    if len(word) > 2:
+        words.add(word)
+    
+    # Рекурсивный вызов для всех соседних клеток
+    for dx, dy in directions:
+        generate_words(matrix, word, x + dx, y + dy, visited, words)
+    
+    visited[x, y] = False  # Снимаем отметку о посещении для возврата
+
+# Функция для запуска поиска слов
+def find_all_words(matrix):
+    words = set()
+    visited = np.zeros(matrix.shape, dtype=bool)  # Создаем матрицу посещенных клеток
+    
+    # Проходим по всем клеткам матрицы и начинаем генерировать слова
+    for i in range(matrix.shape[0]):
+        for j in range(matrix.shape[1]):
+            generate_words(matrix, "", i, j, visited, words)
+    
+    return words
+
+# Функция для нахождения самого длинного пути
+def longest_path(matrix):
+    all_words = find_all_words(matrix)
+    # Находим слово максимальной длины
+    longest_word = max(all_words, key=len, default="")
+    return longest_word
+
+# Запуск поиска самого длинного пути
+longest_word = longest_path(matrix)
+
+# Выводим самый длинный путь
+print(f"Самый длинный путь: {longest_word} (длина: {len(longest_word)})")
